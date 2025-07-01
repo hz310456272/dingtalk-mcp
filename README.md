@@ -1,6 +1,7 @@
 # 钉钉MCP Server
 
 
+
 ## 🚀 功能特性
 - 钉钉通讯录
 - 钉钉部门管理
@@ -13,6 +14,7 @@
 - 钉钉应用管理
 - 钉钉服务窗
 - 钉钉项目管理
+- 钉钉日志
 
 ## 如何使用
 ```json
@@ -38,19 +40,20 @@
 2. DINGTALK_Client_Secret
 3. ACTIVE_PROFILES，激活哪些钉钉MCP服务，逗号风格，如果是ALL则激活全部。可选集合
 
-| ProfileId                   | Description        | Permission                                      |
-|-----------------------------|--------------------|-------------------------------------------------|
-| dingtalk-contacts           | 钉钉通讯录，默认激活         |
-| dingtalk-department         | 钉钉部门管理             |
-| dingtalk-robot-send-message | 钉钉机器人发消息/DING，默认激活 | 需要企业内机器人发送消息权限                |
-| dingtalk-honor              | 钉钉企业文化荣誉           |
-| dingtalk-tasks              | 钉钉待办               | Todo.Todo.Write<br>Todo.Todo.Read               |
-| dingtalk-calendar           | 钉钉日程               |
-| dingtalk-checkin            | 钉钉签到               |
+| ProfileId                   | Description        | Permission                                       |
+|-----------------------------|--------------------|--------------------------------------------------|
+| dingtalk-contacts           | 钉钉通讯录，默认激活         | qyapi_addresslist_search   qyapi_get_member	                      
+| dingtalk-department         | 钉钉部门管理             |qyapi_get_department_list	qyapi_get_department_member	
+| dingtalk-robot-send-message | 钉钉机器人发消息/DING，默认激活 | 需要企业内机器人发送消息权限 <br/>Premium.Ding.Write	                                  |
+| dingtalk-honor              | 钉钉企业文化荣誉           |OrgCulture.Honor.Read	OrgCulture.Honor.Read	
+| dingtalk-tasks              | 钉钉待办               | Todo.Todo.Write<br>Todo.Todo.Read                |
+| dingtalk-calendar           | 钉钉日程               |Calendar.Event.Write	Calendar.Event.Read	 Calendar.EventSchedule.Read	
+| dingtalk-checkin            | 钉钉签到               |qyapi_checkin_read
 | dingtalk-notice             | 钉钉工作通知             |
 | dingtalk-app-manage         | 钉钉应用管理             | qyapi_microapp_manage<br>qyapi_get_microapp_list |
-| dingtalk-service-window     | 钉钉服务窗              |                                                 |
-| dingtalk-teambition         | 钉钉项目管理             |                                                 |
+| dingtalk-service-window     | 钉钉服务窗              |    OfficialAccount.Message.Send	OfficialAccount.Contact.Read	OfficialAccount.Account.Read	                                              |
+| dingtalk-teambition         | 钉钉项目管理             |  Project.Project.Write.All	Project.Project.Read.All	Project.Task.Write.All	Project.Task.Read.All	                                                |
+| dingtalk-report             | 钉钉日志               | qyapi_report_statistics qyapi_report_manage	qyapi_report_query	                        |
 
 4. ROBOT_CODE，用于发消息/DING的机器人Code
 5. ROBOT_ACCESS_TOKEN，群自定义机器人ACCESS_TOKEN，用于自定义机器人发消息
