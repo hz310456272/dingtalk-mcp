@@ -112,7 +112,7 @@ tools:
       搜索知识库。根据关键词搜索用户有权限的知识库，返回匹配的知识库名称和ID。
     requestTemplate:
       method: POST
-      url: https://api.dingtalk.com/v2.0/wiki/workspaces/search?operatorId=String
+      url: https://api.dingtalk.com/v2.0/wiki/search?operatorId=String
     args:
       - name: operatorId
         description: 操作人的unionId。
@@ -197,7 +197,7 @@ tools:
       - 配合getKnowledgeNode获取文档详细信息
     requestTemplate:
       method: POST
-      url: https://api.dingtalk.com/v2.0/wiki/nodes/getByLink?operatorId=String
+      url: https://api.dingtalk.com/v2.0/wiki/nodes/queryByUrl?operatorId=String
     args:
       - name: operatorId
         description: 操作人的unionId。
@@ -225,7 +225,7 @@ tools:
       批量获取节点信息。根据多个节点ID，批量返回节点详情。
     requestTemplate:
       method: POST
-      url: https://api.dingtalk.com/v2.0/wiki/nodes/batchGet?operatorId=String
+      url: https://api.dingtalk.com/v2.0/wiki/nodes/batchQuery?operatorId=String
     args:
       - name: operatorId
         description: 操作人的unionId。
