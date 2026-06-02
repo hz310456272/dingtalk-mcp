@@ -1,0 +1,220 @@
+server:
+  name: dingtalk-knowledge
+  description: 钉钉知识库
+tools:
+  - name: listKnowledgeWorkspaces
+    description: |
+      查询用户有权限的知识库列表。
+      返回用户可访问的所有知识库，包括知识库名称、ID、类型、URL等基本信息。
+
+      【使用场景】
+      - 查看用户可访问的知识库
+      - 获取知识库ID（workspaceId），作为其他知识库接口的入参
+      - 获取知识库的根节点ID（rootNodeId），用于浏览目录树
+
+      【返回字段说明】
+      - workspaceId: 知识库ID（spaceUuid），后续接口的关键参数
+      - name: 知识库名称
+      - rootNodeId: 根节点ID（dentryUuid），用于获取根目录下的节点列表
+      - type: 知识库类型（TEAM=企业知识库，PERSONAL=我的文档）
+      - url: 知识库访问URL
+    requestTemplate:
+      method: GET
+      url: https://api.dingtalk.com/v1.0/doc/workspaces?operatorId=String&includeRecent=true
+    args:
+      - name: operatorId
+        description: |
+          操作人的unionId。可通过以下方式获取：
+          1. 调用searchUser搜索用户，从返回结果获取unionId
+          2. 调用getUserDetailByUserId，从返回结果获取unionId
+        type: string
+        required: true
+        position: query
+
+  - name: getKnowledgeWorkspace
+    description: |
+      获取单个知识库的详细信息。
+      根据知识库ID和操作人unionId，返回知识库的名称、描述、类型、根节点ID等详细信息。
+
+      【使用场景】
+      - 查看知识库的详细信息和描述
+      - 获取知识库的根节点ID（rootNodeId）
+      - 查看当前用户对知识库的权限
+
+      【前置条件】
+      需要先调用listKnowledgeWorkspaces获取workspaceId。
+    requestTemplate:
+      method: GET
+      url: https://api.dingtalk.com/v1.0/doc/workspaces/{workspaceId}?operatorId=String&withPermissionRole=Boolean
+    args:
+      - name: workspaceId
+        description: 知识库ID（workspaceId），从listKnowledgeWorkspaces接口返回结果的workspaceId字段获取。
+        type: string
+        required: true
+        position: path
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: query
+      - name: withPermissionRole
+        description: 是否获取权限信息。true=获取权限角色，false=不获取。默认false。
+        type: boolean
+        required: false
+        position: query
+
+  - name: listKnowledgeNodes
+    description: |
+      获取知识库节点列表（获取目录树）。
+      根据父节点ID，查询该父节点下的所有子节点（文件和文件夹）。
+
+      【使用场景】
+      - 浏览知识库的目录结构
+      - 查看某个文件夹下的所有文档
+      - 逐层深入获取文档内容
+
+      【使用流程】
+      1. 调用listKnowledgeWorkspaces获取知识库列表，得到rootNodeId
+      2. 以rootNodeId作为parentNodeId，调用本接口获取根目录下的节点
+      3. 对于type=FOLDER的节点，可继续以其nodeId作为parentNodeId获取子目录
+      4. 对于type=FILE的节点，可通过url字段查看文档内容
+
+      【返回字段说明】
+      - nodeId: 节点ID（dentryUuid），可作为parentNodeId获取子节点
+      - name: 节点名称
+      - type: 节点类型（FILE=文件，FOLDER=文件夹）
+      - category: 文件类别（ALIDOC=钉钉文档，DOCUMENT=本地文档等）
+      - url: 文档访问URL
+      - hasChildren: 是否有子节点
+      - nextToken: 分页游标，不为空表示有更多数据
+    requestTemplate:
+      method: GET
+      url: https://api.dingtalk.com/v1.0/doc/nodes?parentNodeId=String&operatorId=String&nextToken=String&maxResults=Integer&withPermissionRole=Boolean
+    args:
+      - name: parentNodeId
+        description: |
+          父节点ID（dentryUuid）。获取方式：
+          - 根目录：从listKnowledgeWorkspaces或getKnowledgeWorkspace返回的rootNodeId获取
+          - 子目录：从上次调用本接口返回的节点中，type=FOLDER的节点的nodeId
+        type: string
+        required: true
+        position: query
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: query
+      - name: nextToken
+        description: |
+          分页游标。首次查询不传，后续查询从上一次返回结果的nextToken获取。
+          如果返回的nextToken不为空，表示还有更多数据。
+        type: string
+        required: false
+        position: query
+      - name: maxResults
+        description: 每页返回的数据条数，默认50，最大50。
+        type: integer
+        required: false
+        position: query
+      - name: withPermissionRole
+        description: 是否获取权限信息。true=获取，false=不获取。默认false。
+        type: boolean
+        required: false
+        position: query
+
+  - name: getKnowledgeNode
+    description: |
+      获取单个知识库节点的详细信息。
+      根据节点ID，返回该节点的详细信息，包括名称、类型、URL、创建者、修改时间等。
+
+      【使用场景】
+      - 查看某个文档或文件夹的详细信息
+      - 获取文档的访问URL
+      - 查看节点的创建者和修改时间
+
+      【前置条件】
+      需要先调用listKnowledgeNodes获取nodeId。
+    requestTemplate:
+      method: GET
+      url: https://api.dingtalk.com/v1.0/doc/nodes/{nodeId}?operatorId=String
+    args:
+      - name: nodeId
+        description: |
+          节点ID（dentryUuid）。从listKnowledgeNodes返回的节点列表中获取。
+        type: string
+        required: true
+        position: path
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: query
+
+  - name: createKnowledgeDocument
+    description: |
+      在知识库中创建文档或文件夹。
+      支持创建钉钉文档（文字）、表格、脑图和文件夹。
+
+      【使用场景】
+      - 在知识库中新建空白文档
+      - 在知识库中新建文件夹
+      - 使用模板创建文档
+
+      【前置条件】
+      需要先调用listKnowledgeWorkspaces获取workspaceId。
+
+      【文档类型说明】
+      - DOC: 文字文档
+      - WORKBOOK: 表格
+      - MIND: 脑图
+      - FOLDER: 文件夹
+    requestTemplate:
+      method: POST
+      url: https://api.dingtalk.com/v1.0/doc/workspaces/{workspaceId}/docs
+    args:
+      - name: workspaceId
+        description: 知识库ID，从listKnowledgeWorkspaces获取。
+        type: string
+        required: true
+        position: path
+      - name: name
+        description: 文档名称。
+        type: string
+        required: true
+        position: body
+      - name: docType
+        description: |
+          文档类型，取值：
+          - DOC: 文字文档
+          - WORKBOOK: 表格
+          - MIND: 脑图
+          - FOLDER: 文件夹
+        type: string
+        required: true
+        position: body
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: body
+      - name: parentNodeId
+        description: |
+          父节点ID（可选）。不传则默认在根目录创建。
+          传入文件夹的dentryUuid可在该文件夹下创建文档。
+        type: string
+        required: false
+        position: body
+      - name: templateId
+        description: 文档模板ID（可选）。使用模板创建文档时需要传入。
+        type: string
+        required: false
+        position: body
+      - name: templateType
+        description: |
+          文档模板类型（可选），配合templateId使用：
+          - public_template: 推荐模板
+          - team_template: 团队模板
+          - user_template: 个人模板
+        type: string
+        required: false
+        position: body
