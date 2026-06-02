@@ -20,7 +20,7 @@ tools:
       - url: 知识库访问URL
     requestTemplate:
       method: GET
-      url: https://api.dingtalk.com/v1.0/doc/workspaces?operatorId=String&includeRecent=true
+      url: https://api.dingtalk.com/v2.0/wiki/workspaces?operatorId=String&maxResults=Integer&nextToken=String
     args:
       - name: operatorId
         description: |
@@ -29,6 +29,18 @@ tools:
           2. 调用getUserDetailByUserId，从返回结果获取unionId
         type: string
         required: true
+        position: query
+      - name: maxResults
+        description: 每页返回的数据条数，默认50，最大50。
+        type: integer
+        required: false
+        position: query
+      - name: nextToken
+        description: |
+          分页游标。首次查询不传，后续查询从上一次返回结果的nextToken获取。
+          如果返回的nextToken不为空，表示还有更多数据。
+        type: string
+        required: false
         position: query
 
   - name: getKnowledgeWorkspace
@@ -45,7 +57,7 @@ tools:
       需要先调用listKnowledgeWorkspaces获取workspaceId。
     requestTemplate:
       method: GET
-      url: https://api.dingtalk.com/v1.0/doc/workspaces/{workspaceId}?operatorId=String&withPermissionRole=Boolean
+      url: https://api.dingtalk.com/v2.0/wiki/workspaces/{workspaceId}?operatorId=String&withPermissionRole=Boolean
     args:
       - name: workspaceId
         description: 知识库ID（workspaceId），从listKnowledgeWorkspaces接口返回结果的workspaceId字段获取。
@@ -89,7 +101,7 @@ tools:
       - nextToken: 分页游标，不为空表示有更多数据
     requestTemplate:
       method: GET
-      url: https://api.dingtalk.com/v1.0/doc/nodes?parentNodeId=String&operatorId=String&nextToken=String&maxResults=Integer&withPermissionRole=Boolean
+      url: https://api.dingtalk.com/v2.0/wiki/nodes?parentNodeId=String&operatorId=String&nextToken=String&maxResults=Integer&withPermissionRole=Boolean
     args:
       - name: parentNodeId
         description: |
@@ -136,7 +148,7 @@ tools:
       需要先调用listKnowledgeNodes获取nodeId。
     requestTemplate:
       method: GET
-      url: https://api.dingtalk.com/v1.0/doc/nodes/{nodeId}?operatorId=String
+      url: https://api.dingtalk.com/v2.0/wiki/nodes/{nodeId}?operatorId=String
     args:
       - name: nodeId
         description: |
