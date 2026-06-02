@@ -417,7 +417,7 @@ tools:
       - 将钉钉文档导出为Markdown格式
 
       【前置条件】
-      需要Document.WorkspaceDocument.Read权限。
+      需要Document.AIAssistant.Read权限。
     requestTemplate:
       method: POST
       url: https://api.dingtalk.com/v1.0/doc/{dentryUuid}/export?operatorId=String&targetFormat=String
