@@ -107,34 +107,6 @@ tools:
         required: false
         position: body
 
-  - name: searchKnowledgeBase
-    description: |
-      搜索知识库。根据关键词搜索用户有权限的知识库，返回匹配的知识库名称和ID。
-    requestTemplate:
-      method: POST
-      url: https://api.dingtalk.com/v2.0/wiki/search?operatorId=String
-    args:
-      - name: operatorId
-        description: 操作人的unionId。
-        type: string
-        required: true
-        position: query
-      - name: keyword
-        description: 搜索关键词。
-        type: string
-        required: true
-        position: body
-      - name: nextToken
-        description: 分页游标，首次不传。
-        type: string
-        required: false
-        position: body
-      - name: maxResults
-        description: 分页大小，默认20，最大20。
-        type: integer
-        required: false
-        position: body
-
   # ========== 节点管理（Wiki.Node.Read / Document.WorkspaceDocument.Read）==========
 
   - name: listKnowledgeNodes
@@ -405,35 +377,4 @@ tools:
             memberType:
               type: string
 
-  # ========== 文档内容（Document.WorkspaceDocument.Read）==========
-
-  - name: exportKnowledgeDocument
-    description: |
-      导出知识库文档内容为Markdown格式。
-      返回导出结果，可用于读取文档正文内容。
-
-      【使用场景】
-      - 读取知识库文档的实际正文内容
-      - 将钉钉文档导出为Markdown格式
-
-      【前置条件】
-      需要Document.AIAssistant.Read权限。
-    requestTemplate:
-      method: POST
-      url: https://api.dingtalk.com/v1.0/doc/{dentryUuid}/export?operatorId=String&targetFormat=String
-    args:
-      - name: dentryUuid
-        description: 文档的dentryUuid，从getKnowledgeNode或listKnowledgeNodes获取。也可以从文档URL中提取。
-        type: string
-        required: true
-        position: path
-      - name: operatorId
-        description: 操作人的unionId。
-        type: string
-        required: true
-        position: query
-      - name: targetFormat
-        description: 导出格式，支持 markdown。
-        type: string
-        required: false
-        position: query
+  
