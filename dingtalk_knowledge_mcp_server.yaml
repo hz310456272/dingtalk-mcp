@@ -449,11 +449,12 @@ tools:
 
       【使用场景】
       - 向文档末尾追加新内容（不提供 path 和 index 参数时默认追加到末尾）
-      - 在文档指定位置插入段落、标题等内容
+      - 在文档指定位置插入段落、标题等内容（只提供 index 参数，如 index=2 表示插入到第 3 个块元素之前）
 
       【注意】
       - 需要企业存储文件写权限（Storage.File.Write）。
-      - 插入位置通过 path 和 index 参数共同确定。不提供时默认插入到文档末尾。
+      - 插入位置：仅提供 index 时在根节点指定位置插入；仅提供 path 时进入容器块子级插入；两者都不提供时追加到末尾。
+      - content 参数必须包含 type（固定填 "markdown"）和 content（Markdown 文本）两个字段。
     requestTemplate:
       method: POST
       url: https://api.dingtalk.com/v1.0/doc/suites/documents/{docKey}/content?operatorId=String
@@ -469,14 +470,14 @@ tools:
         required: true
         position: query
       - name: path
-        description: 插入位置路径，如 [0] 表示根节点第一个块元素位置。不提供时默认插入到末尾。
+        description: 插入位置路径，用于进入容器块（如高亮块、表格）的子级。注意：在根节点插入只需 index 参数，不需要 path。
         type: array
         required: false
         position: body
         items:
           type: integer
       - name: index
-        description: 插入位置索引（从 0 开始）。不提供时默认插入到末尾。
+        description: 插入位置索引（从 0 开始）。如 index=2 表示插入到第 3 个块元素之前。不提供时默认插入到末尾。
         type: integer
         required: false
         position: body
