@@ -507,34 +507,34 @@ tools:
 
       【注意】需要企业存储文件读权限（Storage.File.Read）。
     requestTemplate:
-      method: POST
-      url: https://api.dingtalk.com/v1.0/doc/spaces/docs/blocks/children/query?operatorId=String
+      method: GET
+      url: https://api.dingtalk.com/v1.0/doc/documents/{documentId}/blocks/{blockId}/children?operatorId=String&pageSize=Integer&cursor=String
     args:
+      - name: documentId
+        description: 文档ID（docKey 或 dentryUuid）。
+        type: string
+        required: true
+        position: path
+      - name: blockId
+        description: 父块元素ID。从 queryDocumentBlocks 返回结果的 blockId 字段获取。
+        type: string
+        required: true
+        position: path
       - name: operatorId
         description: 操作人的unionId。
         type: string
         required: true
         position: query
-      - name: docId
-        description: 文档ID（docKey 或 dentryUuid）。
-        type: string
-        required: true
-        position: body
-      - name: blockId
-        description: 父块元素ID。从 queryDocumentBlocks 返回结果的 blockId 字段获取。
-        type: string
-        required: true
-        position: body
       - name: pageSize
-        description: 每页返回数量，默认50，最大50。
+        description: 每页返回数量，默认20。
         type: integer
         required: false
-        position: body
-      - name: pageToken
+        position: query
+      - name: cursor
         description: 分页游标，首次不传。
         type: string
         required: false
-        position: body
+        position: query
 
   - name: updateDocumentBlock
     description: |
@@ -549,8 +549,13 @@ tools:
       - 需要企业存储文件写权限（Storage.File.Write）
     requestTemplate:
       method: PUT
-      url: https://api.dingtalk.com/v1.0/doc/suites/blocks/{blockId}?operatorId=String
+      url: https://api.dingtalk.com/v1.0/doc/documents/{documentId}/blocks/{blockId}?operatorId=String
     args:
+      - name: documentId
+        description: 文档ID（docKey 或 dentryUuid）。
+        type: string
+        required: true
+        position: path
       - name: blockId
         description: 要更新的块元素ID。
         type: string
@@ -582,8 +587,13 @@ tools:
       - 需要企业存储文件写权限（Storage.File.Write）
     requestTemplate:
       method: DELETE
-      url: https://api.dingtalk.com/v1.0/doc/suites/blocks/{blockId}?operatorId=String
+      url: https://api.dingtalk.com/v1.0/doc/documents/{documentId}/blocks/{blockId}?operatorId=String
     args:
+      - name: documentId
+        description: 文档ID（docKey 或 dentryUuid）。
+        type: string
+        required: true
+        position: path
       - name: blockId
         description: 要删除的块元素ID。
         type: string
