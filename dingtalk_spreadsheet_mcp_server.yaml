@@ -1,0 +1,362 @@
+server:
+  name: dingtalk-spreadsheet
+  description: 钉钉在线表格
+tools:
+  # ========== 工作表（Sheet）管理 ==========
+
+  - name: listWorkbookSheets
+    description: |
+      获取在线表格的所有工作表列表。返回每个工作表的ID和名称。
+
+      【使用场景】
+      - 查看一个在线表格包含哪些工作表（Sheet）
+      - 获取 sheetId 用于后续读取或写入单元格数据
+
+      【注意】workbookId 即知识库节点的 dentryUuid，可通过 getKnowledgeNodeByLink 或 listKnowledgeNodes 获取。
+    requestTemplate:
+      method: GET
+      url: https://api.dingtalk.com/v1.0/doc/workbooks/{workbookId}/sheets?operatorId=String
+    args:
+      - name: workbookId
+        description: 在线表格ID（即知识库节点的 dentryUuid）。
+        type: string
+        required: true
+        position: path
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: query
+
+  - name: getWorkbookSheet
+    description: |
+      获取单个工作表的属性信息，包括工作表ID、名称、可见性、行列数、最后非空行列位置等。
+
+      【使用场景】
+      - 了解某个工作表的大小（行数、列数）和有效数据范围
+      - 获取 lastNonEmptyRow/lastNonEmptyColumn 以确定读取数据的范围
+    requestTemplate:
+      method: GET
+      url: https://api.dingtalk.com/v1.0/doc/workbooks/{workbookId}/sheets/{sheetId}?operatorId=String
+    args:
+      - name: workbookId
+        description: 在线表格ID（即知识库节点的 dentryUuid）。
+        type: string
+        required: true
+        position: path
+      - name: sheetId
+        description: 工作表ID或标题。建议使用工作表标题作为 sheetId。
+        type: string
+        required: true
+        position: path
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: query
+
+  - name: createWorkbookSheet
+    description: |
+      在在线表格中创建新的工作表。如果指定的工作表名称与已有名称重复，将自动重命名为合法值。
+    requestTemplate:
+      method: POST
+      url: https://api.dingtalk.com/v1.0/doc/workbooks/{workbookId}/sheets?operatorId=String
+    args:
+      - name: workbookId
+        description: 在线表格ID（即知识库节点的 dentryUuid）。
+        type: string
+        required: true
+        position: path
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: query
+      - name: name
+        description: 工作表名称。
+        type: string
+        required: false
+        position: body
+
+  - name: deleteWorkbookSheet
+    description: |
+      删除在线表格中的指定工作表。
+    requestTemplate:
+      method: DELETE
+      url: https://api.dingtalk.com/v1.0/doc/workbooks/{workbookId}/sheets/{sheetId}?operatorId=String
+    args:
+      - name: workbookId
+        description: 在线表格ID（即知识库节点的 dentryUuid）。
+        type: string
+        required: true
+        position: path
+      - name: sheetId
+        description: 工作表ID或标题。
+        type: string
+        required: true
+        position: path
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: query
+
+  # ========== 单元格区域（Range）读写 ==========
+
+  - name: getSheetRange
+    description: |
+      读取在线表格指定区域的单元格数据。返回单元格的值、公式、显示值、背景色等信息。
+
+      【使用场景】
+      - 读取表格中的数据（如读取 A1:D10 获取前4列前10行的数据）
+      - 获取单元格公式或显示格式
+      - 配合 getWorkbookSheet 获取 lastNonEmptyRow/lastNonEmptyColumn，然后用 A1 记法构造范围地址
+
+      【A1 记法示例】
+      - A1 读取单个单元格
+      - A1:B2 读取2x2区域
+      - A1:D10 读取4列10行区域
+
+      【注意】rangeAddress 使用 A1 记法（如 A1:B2），sheetId 可使用工作表标题。
+    requestTemplate:
+      method: GET
+      url: https://api.dingtalk.com/v1.0/doc/workbooks/{workbookId}/sheets/{sheetId}/ranges/{rangeAddress}?operatorId=String&select=String
+    args:
+      - name: workbookId
+        description: 在线表格ID（即知识库节点的 dentryUuid）。
+        type: string
+        required: true
+        position: path
+      - name: sheetId
+        description: 工作表ID或标题。建议使用工作表标题。
+        type: string
+        required: true
+        position: path
+      - name: rangeAddress
+        description: 单元格区域地址，使用 A1 记法。如 A1 读取单个单元格，A1:B2 读取区域，A1:D10 读取4列10行。
+        type: string
+        required: true
+        position: path
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: query
+      - name: select
+        description: 选择返回哪些属性，可选值包括 values、formulas、displayValues、backgroundColors 等。不传则返回全部。
+        type: string
+        required: false
+        position: query
+
+  - name: updateSheetRange
+    description: |
+      更新在线表格指定区域的单元格数据。可写入值、背景色、超链接、数字格式等。
+
+      【使用场景】
+      - 向表格写入数据（如向 A1:B2 写入2x2的值数组）
+      - 设置单元格背景色
+      - 设置单元格超链接
+
+      【注意】
+      - values 为二维数组，行列数需与 rangeAddress 对应
+      - rangeAddress 使用 A1 记法
+      - 需要钉钉表格写权限
+    requestTemplate:
+      method: PUT
+      url: https://api.dingtalk.com/v1.0/doc/workbooks/{workbookId}/sheets/{sheetId}/ranges/{rangeAddress}?operatorId=String
+    args:
+      - name: workbookId
+        description: 在线表格ID（即知识库节点的 dentryUuid）。
+        type: string
+        required: true
+        position: path
+      - name: sheetId
+        description: 工作表ID或标题。建议使用工作表标题。
+        type: string
+        required: true
+        position: path
+      - name: rangeAddress
+        description: 单元格区域地址，使用 A1 记法。如 A1 写入单个单元格，A1:B2 写入2x2区域。
+        type: string
+        required: true
+        position: path
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: query
+      - name: values
+        description: |
+          单元格值数据，二维数组。行列数需与 rangeAddress 对应。
+          示例：写入 A1:B2 则需要 [[值1, 值2], [值3, 值4]] 的2x2数组。
+        type: array
+        required: false
+        position: body
+        items:
+          type: array
+          items:
+            type: string
+      - name: backgroundColors
+        description: |
+          单元格背景色，二维数组。每个元素为颜色字符串（如 "#FF0000"）。
+          行列数需与 rangeAddress 对应。
+        type: array
+        required: false
+        position: body
+        items:
+          type: array
+          items:
+            type: string
+      - name: numberFormat
+        description: 数字格式字符串，应用于整个区域。如 "0.00" 表示保留两位小数。
+        type: string
+        required: false
+        position: body
+
+  - name: clearSheetRangeData
+    description: |
+      清除在线表格指定区域的单元格数据（仅清除数据，保留格式）。
+
+      【使用场景】
+      - 清空某个区域的单元格值，但保留背景色、字体等格式设置
+
+      【注意】rangeAddress 使用 A1 记法。
+    requestTemplate:
+      method: POST
+      url: https://api.dingtalk.com/v1.0/doc/workbooks/{workbookId}/sheets/{sheetId}/ranges/{rangeAddress}/clearData?operatorId=String
+    args:
+      - name: workbookId
+        description: 在线表格ID（即知识库节点的 dentryUuid）。
+        type: string
+        required: true
+        position: path
+      - name: sheetId
+        description: 工作表ID或标题。
+        type: string
+        required: true
+        position: path
+      - name: rangeAddress
+        description: 单元格区域地址，使用 A1 记法。
+        type: string
+        required: true
+        position: path
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: query
+
+  - name: clearSheetRangeAll
+    description: |
+      清除在线表格指定区域的所有内容（包括数据和格式）。
+
+      【使用场景】
+      - 完全清空某个区域的单元格，数据、格式全部清除
+
+      【注意】rangeAddress 使用 A1 记法。此操作不可恢复，请谨慎使用。
+    requestTemplate:
+      method: POST
+      url: https://api.dingtalk.com/v1.0/doc/workbooks/{workbookId}/sheets/{sheetId}/ranges/{rangeAddress}/clear?operatorId=String
+    args:
+      - name: workbookId
+        description: 在线表格ID（即知识库节点的 dentryUuid）。
+        type: string
+        required: true
+        position: path
+      - name: sheetId
+        description: 工作表ID或标题。
+        type: string
+        required: true
+        position: path
+      - name: rangeAddress
+        description: 单元格区域地址，使用 A1 记法。
+        type: string
+        required: true
+        position: path
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: query
+
+  # ========== 行列操作 ==========
+
+  - name: insertSheetRows
+    description: |
+      在指定行上方插入若干行。
+
+      【使用场景】
+      - 在表格中插入新行以添加数据
+
+      【注意】
+      - row 参数从0开始计数（0表示第1行上方）
+      - 需要钉钉表格写权限
+    requestTemplate:
+      method: POST
+      url: https://api.dingtalk.com/v1.0/doc/workbooks/{workbookId}/sheets/{sheetId}/insertRowsBefore?operatorId=String
+    args:
+      - name: workbookId
+        description: 在线表格ID（即知识库节点的 dentryUuid）。
+        type: string
+        required: true
+        position: path
+      - name: sheetId
+        description: 工作表ID或标题。
+        type: string
+        required: true
+        position: path
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: query
+      - name: row
+        description: 目标行的游标，从0开始。0表示在第1行上方插入。
+        type: integer
+        required: true
+        position: body
+      - name: rowCount
+        description: 要插入的行数。
+        type: integer
+        required: true
+        position: body
+
+  - name: insertSheetColumns
+    description: |
+      在指定列左侧插入若干列。
+
+      【使用场景】
+      - 在表格中插入新列以添加数据
+
+      【注意】
+      - column 参数从0开始计数（0表示第1列左侧）
+      - 需要钉钉表格写权限
+    requestTemplate:
+      method: POST
+      url: https://api.dingtalk.com/v1.0/doc/workbooks/{workbookId}/sheets/{sheetId}/insertColumnsBefore?operatorId=String
+    args:
+      - name: workbookId
+        description: 在线表格ID（即知识库节点的 dentryUuid）。
+        type: string
+        required: true
+        position: path
+      - name: sheetId
+        description: 工作表ID或标题。
+        type: string
+        required: true
+        position: path
+      - name: operatorId
+        description: 操作人的unionId。
+        type: string
+        required: true
+        position: query
+      - name: column
+        description: 目标列的游标，从0开始。0表示在第1列左侧插入。
+        type: integer
+        required: true
+        position: body
+      - name: columnCount
+        description: 要插入的列数。
+        type: integer
+        required: true
+        position: body
