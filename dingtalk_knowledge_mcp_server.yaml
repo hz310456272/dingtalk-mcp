@@ -507,29 +507,34 @@ tools:
 
       【注意】需要企业存储文件读权限（Storage.File.Read）。
     requestTemplate:
-      method: GET
-      url: https://api.dingtalk.com/v1.0/doc/suites/documents/blocks/{blockId}/children?operatorId=String&maxResults=Integer&nextToken=String
+      method: POST
+      url: https://api.dingtalk.com/v1.0/doc/spaces/docs/blocks/children/query?operatorId=String
     args:
-      - name: blockId
-        description: 父块元素ID。从 queryDocumentBlocks 返回结果的 blockId 字段获取。
-        type: string
-        required: true
-        position: path
       - name: operatorId
         description: 操作人的unionId。
         type: string
         required: true
         position: query
-      - name: maxResults
-        description: 每页返回数量，默认50，最大100。
+      - name: docId
+        description: 文档ID（docKey 或 dentryUuid）。
+        type: string
+        required: true
+        position: body
+      - name: blockId
+        description: 父块元素ID。从 queryDocumentBlocks 返回结果的 blockId 字段获取。
+        type: string
+        required: true
+        position: body
+      - name: pageSize
+        description: 每页返回数量，默认50，最大50。
         type: integer
         required: false
-        position: query
-      - name: nextToken
+        position: body
+      - name: pageToken
         description: 分页游标，首次不传。
         type: string
         required: false
-        position: query
+        position: body
 
   - name: updateDocumentBlock
     description: |
